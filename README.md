@@ -1,6 +1,8 @@
 # Web Application
 
 Веб-приложение.
+![изображение](https://github.com/user-attachments/assets/14feebe9-d547-4345-8384-511771414ef0)
+
 
 ## Структура проекта
 
