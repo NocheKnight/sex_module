@@ -5,7 +5,4 @@ class AntColony:
         pass
 
     def calculate_distance(self, solution):
-        """
-        Вычисление длины маршрута
-        """
         pass

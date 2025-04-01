@@ -1,15 +1,18 @@
 # Web Application
 
 Веб-приложение.
+![изображение](https://github.com/user-attachments/assets/14feebe9-d547-4345-8384-511771414ef0)
+
 
 ## Структура проекта
 
 ```
-/ml-web-app
+/web-app
   /backend
     main.py                  # Главный файл FastAPI
     /algorithms              # Реализация алгоритмов
       __init__.py
+      astar.py               # A* + Прима
       kmeans.py              # Кластеризация (K-Means)
       genetic_algorithm.py   # Генетический алгоритм
       ant_colony.py          # Муравьиный алгоритм
@@ -18,8 +21,8 @@
     requirements.txt         # Зависимости Python
   /frontend
     index.html               # Главная страница фронтенда
-    styles.css              # Стили для интерфейса
-    app.js                  # Логика фронтенда
+    styles.css               # Стили для интерфейса
+    app.js                   # Логика фронтенда
 ```
 
 ## Установка и запуск

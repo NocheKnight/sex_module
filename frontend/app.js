@@ -46,30 +46,25 @@ class AStarVisualization {
     }
     
     async initialize() {
-        // Создание контейнера для визуализации
         const visualizationContainer = document.createElement('div');
         visualizationContainer.className = 'visualization-container';
         this.container.innerHTML = '';
         this.container.appendChild(visualizationContainer);
-        
-        // Создание canvas
+
+        // https://ru.stackoverflow.com/questions/1357899/%D0%A0%D0%B8%D1%81%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%BD%D0%B0-%D1%85%D0%BE%D0%BB%D1%81%D1%82%D0%B5-html5-%D1%81-%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E-%D0%BC%D1%8B%D1%88%D0%B8
         this.canvas = document.createElement('canvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Создание панели инструментов
         this.createToolbar();
         
-        // Добавление элементов в контейнер
         visualizationContainer.appendChild(this.toolbar);
         visualizationContainer.appendChild(this.canvas);
         
-        // Получение начального лабиринта
         await this.generateMaze();
         
-        // Настройка обработчиков событий
         this.setupEventListeners();
         
-        // Добавляем обработчик изменения размера окна
+        // Добавляем обработчик изменения размера окна TODO: Адаптивность
         window.addEventListener('resize', () => {
             this.resizeCanvas();
             this.draw();
@@ -100,7 +95,6 @@ class AStarVisualization {
         algorithmSelector.appendChild(select);
         this.toolbar.appendChild(algorithmSelector);
         
-        // разделитель
         const divider = document.createElement('div');
         divider.className = 'toolbar-divider';
         this.toolbar.appendChild(divider);
@@ -121,7 +115,6 @@ class AStarVisualization {
             this.toolbar.appendChild(button);
         });
         
-        // разделитель
         const divider2 = document.createElement('div');
         divider2.className = 'toolbar-divider';
         this.toolbar.appendChild(divider2);
@@ -186,6 +179,7 @@ class AStarVisualization {
     }
     
     handleMouseMove(e) {
+        // https://habr.com/ru/articles/244545/
         if (!this.isDrawing) return;
         
         const rect = this.canvas.getBoundingClientRect();
@@ -265,7 +259,6 @@ class AStarVisualization {
             this.visited = new Set(data.visited);
             this.frontier = new Set(data.frontier);
             
-            // Анимация поиска пути
             this.animatePathfinding();
         } catch (error) {
             console.error('Ошибка при поиске пути:', error);

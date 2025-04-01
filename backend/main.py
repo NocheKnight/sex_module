@@ -16,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Глобальный экземпляр A*
 astar = AStar(size=20)
 
 @app.get("/")
@@ -39,12 +38,10 @@ async def generate_maze(algorithm: str = 'prim'):
 @app.post("/astar/find-path")
 async def find_path(data: dict):
     try:
-        # Обновление состояния лабиринта
         astar.maze = np.array(data["maze"])
         astar.start = tuple(data["start"])
         astar.end = tuple(data["end"])
         
-        # Поиск пути
         path = astar.find_path()
         
         # Преобразование множеств в списки для JSON
