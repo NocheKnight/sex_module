@@ -1,6 +1,6 @@
-# ML Web Application
+# Web Application
 
-Веб-приложение для демонстрации различных алгоритмов машинного обучения.
+Веб-приложение.
 
 ## Структура проекта
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 2. Запустите бэкенд:
 ```bash
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 
 3. Откройте frontend/index.html в браузере 
