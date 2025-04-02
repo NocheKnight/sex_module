@@ -78,9 +78,6 @@ class AStarVisualization {
         const algorithmSelector = document.createElement('div');
         algorithmSelector.className = 'algorithm-selector';
         
-        const label = document.createElement('label');
-        label.textContent = 'Алгоритм генерации:';
-        
         const select = document.createElement('select');
         select.innerHTML = `
             <option value="prim">Алгоритм Прима</option>
@@ -91,7 +88,6 @@ class AStarVisualization {
             this.generateMaze(select.value);
         });
         
-        algorithmSelector.appendChild(label);
         algorithmSelector.appendChild(select);
         this.toolbar.appendChild(algorithmSelector);
         
