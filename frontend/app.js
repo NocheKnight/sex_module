@@ -8,10 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const algorithm = e.target.dataset.algorithm;
             
+            visualizationContainer.innerHTML = '';
+
             if (algorithm === 'astar') {
                 if (!astarVisualization) {
                     astarVisualization = new AStarVisualization(visualizationContainer);
                     await astarVisualization.initialize();
+                } else {
+                    const container = document.createElement('div');
+                    container.className = 'visualization-container';
+                    container.appendChild(astarVisualization.toolbar);
+                    container.appendChild(astarVisualization.canvas);
+                    visualizationContainer.appendChild(container);
+                    astarVisualization.draw();
                 }
             } else {
                 // Обработка других алгоритмов
@@ -291,13 +300,13 @@ class AStarVisualization {
         
         // Отрисовка посещенных клеток
         this.visited.forEach(([x, y]) => {
-            this.ctx.fillStyle = 'rgba(0, 255, 157, 0.3)';
+            this.ctx.fillStyle = 'rgba(0,255,157,0.18)';
             this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
         });
         
         // Отрисовка границы поиска
         this.frontier.forEach(([x, y]) => {
-            this.ctx.fillStyle = 'rgba(100, 255, 218, 0.3)';
+            this.ctx.fillStyle = 'rgba(65,94,85,0.29)';
             this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
         });
         
@@ -312,7 +321,7 @@ class AStarVisualization {
         
         // Отрисовка начальной и конечной точек
         if (this.start) {
-            this.ctx.fillStyle = '#00ff9d';
+            this.ctx.fillStyle = '#0b858a';
             this.ctx.beginPath();
             this.ctx.arc(
                 this.start[0] * this.cellSize + this.cellSize/2,

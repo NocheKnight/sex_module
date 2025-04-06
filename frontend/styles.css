@@ -182,7 +182,7 @@ main {
 }
 
 #visualization {
-    min-height: 480px;
+    min-height: 485px;
     border: 1px solid rgba(0, 255, 157, 0.2);
     border-radius: 10px;
     margin-top: -5px;
@@ -299,7 +299,7 @@ main {
     align-items: center;
     justify-content: center;
     height: 100%;
-    min-height: 400px;
+    min-height: 450px;
     color: var(--text-secondary);
     font-size: 1.2rem;
 }
