@@ -1,11 +1,13 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 # from algorithms.kmeans import kmeans_clustering
 # from algorithms.genetic_algorithm import genetic_algorithm
 from backend.algorithms.astar import AStar
-from backend.algorithms.ant_colony import AntColony
+from backend.algorithms.ant_colony import AntColony, AntColonyDto
 import pandas as pd
 import numpy as np
+from typing import Tuple
+from pydantic import BaseModel
 
 app = FastAPI(title="Web Application")
 
@@ -73,14 +75,22 @@ async def ping():
     return {"message": "Server is running!"}
 
 
-@app.get("/ants/generate")
-async def ants_generate(colony_size: int = 5):
-    colony = AntColony(colony_size)
-    return colony
+class GenerateParams(BaseModel):
+    home: Tuple[float, float]
+    colony_size: int
 
+@app.post("/ants/generate")
+async def ants_generate(data: GenerateParams):
+    colony = AntColony(data.home, data.colony_size)
+    return colony.to_json()
+
+class SimulateParams(BaseModel):
+    colony_dto: AntColonyDto
+    delta_time: float
 
 @app.post("/ants/simulate")
-async def ants_simulate(colony: AntColony, delta_time: float = 1):
-    colony.update(delta_time)
-    return colony
+async def ants_simulate(data: SimulateParams):
+    colony = data.colony_dto.to_colony()
+    colony.update(data.delta_time)
+    return colony.to_json()
 
