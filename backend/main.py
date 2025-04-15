@@ -1,8 +1,9 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 # from algorithms.kmeans import kmeans_clustering
 # from algorithms.genetic_algorithm import genetic_algorithm
 from backend.algorithms.astar import AStar
+from backend.algorithms.kmeans import KMeansData, kmeans_algorithm
 import pandas as pd
 import numpy as np
 
@@ -56,11 +57,12 @@ async def find_path(data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/kmeans/")
-async def run_kmeans(file: UploadFile = File(...), n_clusters: int = 3):
-    data = pd.read_csv(file.file)
-    # result = kmeans_clustering(data, n_clusters)
-    return {"clusters": "result"}
+@app.post("/kmeans")
+async def run_kmeans(data: KMeansData):
+    try:
+        return kmeans_algorithm(data)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/genetic/")
 async def run_genetic_algorithm():

@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     visualizationContainer.appendChild(container);
                     astarVisualization.draw();
                 }
+            } else if (algorithm == 'kmeans') {
+                let kmeansVisualization = new KMeans(visualizationContainer);
+                kmeansVisualization.initialize();
             } else {
                 // Обработка других алгоритмов
                 try {
