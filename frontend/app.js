@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     visualizationContainer.appendChild(container);
                     astarVisualization.draw();
                 }
+            } else if (algorithm === 'ant') {
+                let antsVisualization = new AntsColony(visualizationContainer);
+                await antsVisualization.initialize();
             } else {
                 // Обработка других алгоритмов
                 try {

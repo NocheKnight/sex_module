@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # from algorithms.kmeans import kmeans_clustering
 # from algorithms.genetic_algorithm import genetic_algorithm
 from backend.algorithms.astar import AStar
+from backend.algorithms.ant_colony import AntColony
 import pandas as pd
 import numpy as np
 
@@ -70,3 +71,16 @@ async def run_genetic_algorithm():
 @app.get("/ping")
 async def ping():
     return {"message": "Server is running!"}
+
+
+@app.get("/ants/generate")
+async def ants_generate(colony_size: int = 5):
+    colony = AntColony(colony_size)
+    return colony
+
+
+@app.post("/ants/simulate")
+async def ants_simulate(colony: AntColony, delta_time: float = 1):
+    colony.update(delta_time)
+    return colony
+
