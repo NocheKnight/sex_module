@@ -8,6 +8,7 @@ class KMeans {
         this.points = new Set();
         this.pointR = 10;
         this.defaultPointColor = [0, 0, 0];
+        this.colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 128, 0], [0, 255, 255], [204, 0, 204]]
     }
 
     initialize() {
@@ -142,6 +143,7 @@ class KMeans {
     }
 
     getColorFromCluster(clusterIdx, clustersCnt) {
+        if (clustersCnt <= this.colors.length) return this.colors[clusterIdx];
         let color = [255 * clusterIdx / clustersCnt, 0 , 255 - 255 * clusterIdx / clustersCnt];
         color[1] = (color[0] + color[2]) / 2;
         return color;
