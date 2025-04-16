@@ -137,6 +137,7 @@ class KMeans {
         this.points.forEach(point => {
             this.ctx.beginPath();
             this.ctx.fillStyle = `rgb(${point[2]})`;
+            console.log(point[2]);
             this.ctx.arc(point[0], point[1], this.pointR, 0, 2 * Math.PI);
             this.ctx.fill();
         });
