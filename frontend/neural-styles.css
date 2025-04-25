@@ -4,7 +4,7 @@
     gap: 20px;
     padding: 20px;
     background-color: var(--surface-color);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     height: 100%;
     box-sizing: border-box;
@@ -53,7 +53,7 @@ h3 {
 .control-panel {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 40px;
     width: 100%;
     justify-content: center;
 }
@@ -124,67 +124,3 @@ h3 {
     font-size: 14px;
     color: var(--text-secondary);
 }
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .neural-container {
-        flex-direction: column;
-        padding: 15px;
-    }
-    
-    .drawing-section, .result-section {
-        min-width: 0;
-        width: 100%;
-        padding: 10px;
-    }
-    
-    .drawing-canvas {
-        width: 100%;
-        max-width: 280px;
-        height: auto;
-        aspect-ratio: 1 / 1;
-    }
-    
-    .result-canvas {
-        width: 112px;
-        height: 112px;
-    }
-    
-    .digit-display {
-        font-size: 48px;
-    }
-}
-
-@media (max-width: 480px) {
-    .neural-container {
-        padding: 10px;
-        gap: 10px;
-    }
-    
-    .drawing-section, .result-section {
-        padding: 8px;
-    }
-    
-    h3 {
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-    
-    .drawing-canvas {
-        max-width: 240px;
-    }
-    
-    .result-canvas {
-        width: 84px;
-        height: 84px;
-    }
-    
-    .digit-display {
-        font-size: 40px;
-    }
-    
-    .neural-button {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-} 

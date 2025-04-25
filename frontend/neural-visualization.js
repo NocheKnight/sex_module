@@ -40,7 +40,6 @@ class NeuralVisualization {
 
         drawingSection.appendChild(this.drawingCanvas);
         
-        // Добавляем панель управления
         const controlPanel = document.createElement('div');
         controlPanel.className = 'control-panel';
         
@@ -59,7 +58,6 @@ class NeuralVisualization {
 
         drawingSection.appendChild(controlPanel);
         
-        // Создаем правую панель для отображения результатов
         const resultSection = document.createElement('div');
         resultSection.className = 'result-section';
         
@@ -95,11 +93,9 @@ class NeuralVisualization {
         
         resultSection.appendChild(this.resultDisplay);
         
-        // Объединяем все секции
         visualizationContainer.appendChild(drawingSection);
         visualizationContainer.appendChild(resultSection);
         
-        // Обработчики событий для рисования
         this.setupEventListeners();
     }
     

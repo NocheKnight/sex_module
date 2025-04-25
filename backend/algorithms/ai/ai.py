@@ -588,7 +588,7 @@ class AI:
               )
             )
           ).values.reshape((10))
-        ).argmax()
+        )
 
     def forward(self, img: np.ndarray) -> Stats:
         """Perform forward pass through entire network.

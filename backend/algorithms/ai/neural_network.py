@@ -5,7 +5,6 @@ from .ai import AI
 
 class NeuralNetwork:
     def __init__(self):
-        """Инициализация нейронной сети для распознавания цифр MNIST."""
         self.ai = AI()
         
         config_path = os.path.join(os.path.dirname(__file__), 'AI_config.npz')
@@ -35,14 +34,12 @@ class NeuralNetwork:
             if image.max() > 1.0:
                 image = image / 255.0
                 
-            digit = self.ai.main(image)
+            probabilities = self.ai.main(image)
 
-            #TODO:
-            # Находим наиболее вероятную цифру
-            # digit = int(np.argmax(probabilities))
-            # confidence = float(probabilities[digit])
+            digit = int(np.argmax(probabilities))
+            confidence = float(probabilities[digit])
             
-            return digit, 1
+            return digit, confidence
             
         except Exception as e:
             print(f"Ошибка при распознавании: {e}")
