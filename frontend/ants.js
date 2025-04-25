@@ -4,6 +4,7 @@ class AntsColony {
         this.canvas = null;
         this.canvas_size = 500;
         this.ctx = null;
+        this.currentTool = 'home';
 
         this.ants = [];
         this.ant_color = [0, 0, 0];
@@ -14,7 +15,7 @@ class AntsColony {
         this.home_size = this.canvas_size / 20;
 
         // (x, y, source_capacity)
-        this.food_sources = [[this.canvas_size / 7, this.canvas_size / 7, 1], [this.canvas_size * 6 / 7, this.canvas_size / 7, 1], [this.canvas_size / 2, this.canvas_size * 6 / 7, 1]];
+        this.food_sources = [];
         this.food_color = [0, 255, 0];
         this.food_size = this.canvas_size / 20;
 
@@ -51,6 +52,25 @@ class AntsColony {
         this.toolbar = document.createElement('div');
         this.toolbar.className = 'astar-toolbar';
 
+        const editTools = [
+            { id: 'home', icon: '🚀', label: 'Колония' },
+            { id: 'food', icon: '🎯', label: 'Еда' },
+            { id: 'erase', icon: '🧹', label: 'Ластик' }
+        ];
+        
+        editTools.forEach(tool => {
+            const button = document.createElement('button');
+            button.className = 'astar-tool-button';
+            button.innerHTML = `${tool.icon} ${tool.label}`;
+            button.dataset.tool = tool.id;
+            button.addEventListener('click', () => this.handleToolClick(tool.id));
+            this.toolbar.appendChild(button);
+        });
+        
+        const divider2 = document.createElement('div');
+        divider2.className = 'toolbar-divider';
+        this.toolbar.appendChild(divider2);
+
         const actionTools = [
             { id: 'stop', icon: '🧱', label: 'Остановить' },
             { id: 'start', icon: '▶️', label: 'Запуск' },
@@ -79,6 +99,11 @@ class AntsColony {
         }
         
         switch (tool) {
+            case 'home':
+            case 'food':
+            case 'erase':
+                this.currentTool = tool;
+                break;
             case 'stop':
                 this.running = false;
                 this.ants = [];
@@ -92,6 +117,31 @@ class AntsColony {
                 break;
         }
     }
+
+    setupEventListeners() {
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+    }
+    
+    handleMouseDown(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        
+        const x = (e.clientX - rect.left);
+        const y = (e.clientY - rect.top);
+
+        if (this.currentTool == 'home') {
+            this.home = [x, y];
+        } else if (this.currentTool == 'food') {
+            this.food_sources.add([x, y, 1]);
+        } else if (this.currentTool == 'erase') {
+            let food_sources_set = new Set(this.food_sources);
+            let intersections = this.food_sources.filter((source) => ((source[0] - x) * (source[0] - 1) + (source[1] - y) * (source[1] - y) <= this.food_size * this.food_size));
+            intersections.forEach((source) => food_sources_set.remove(source));
+            this.food_sources = [...food_sources_set];
+        }
+
+        this.draw();
+    }
+    
 
     async algortithm_step() {
         if (!this.running) return;
