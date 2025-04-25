@@ -50,21 +50,32 @@ class KMeans {
             this.toolbar.appendChild(button);
         });
 
-        const label = document.createElement('label');
-        label.innerHTML = 'Введите количество кластеров';
-        this.toolbar.appendChild(label);
-        const inputField = document.createElement('input');
-        inputField.id = 'clusters-cnt';
-        inputField.type = 'text';
-        inputField.className = 'astar-tool-button';
-        this.toolbar.appendChild(inputField);
+        const clusterCntLabel = document.createElement('label');
+        clusterCntLabel.innerHTML = 'Введите количество кластеров';
+        this.toolbar.appendChild(clusterCntLabel);
+        const clusterCntInputField = document.createElement('input');
+        clusterCntInputField.id = 'clusters-cnt';
+        clusterCntInputField.type = 'text';
+        clusterCntInputField.className = 'astar-tool-button';
+        this.toolbar.appendChild(clusterCntInputField);
+
+        const randomLabel = document.createElement('label');
+        randomLabel.innerHTML = 'Введите количество точек';
+        this.toolbar.appendChild(randomLabel);
+        const randomInputField = document.createElement('input');
+        randomInputField.id = 'random';
+        randomInputField.type = 'text';
+        randomInputField.className = 'astar-tool-button';
+        this.toolbar.appendChild(randomInputField);
 
         const divider = document.createElement('div');
         divider.className = 'toolbar-divider';
         this.toolbar.appendChild(divider);
 
         const actionTools = [
-            { id: 'start', icon: '▶️', label: 'Запуск' }
+            { id: 'start', icon: '▶️', label: 'Запуск' },
+            { id: 'random-tool', icon: '🎲', label: 'Рандом' },
+            { id: 'clear', icon: '🔄', label: 'Стереть'}
         ];
 
         actionTools.forEach(tool => {
@@ -96,6 +107,24 @@ class KMeans {
                 break;
             case 'start':
                 await this.getClusters();
+                break;
+            case 'random-tool':
+                let pointCnt = +document.getElementById('random').value;
+
+                if (isNaN) {
+                    let getRandomCoord = () => Math.random() * (this.canvasSize - 2 * this.pointR) + this.pointR;
+
+                    for (let i = 0; i < pointCnt; ++i) {
+                        this.points.add([getRandomCoord(), getRandomCoord()]);
+                    }
+                    
+                    this.draw();
+                }
+
+                break;
+            case 'clear':
+                this.points.clear();
+                this.draw();
                 break;
         }
     }
