@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const algorithmLinks = document.querySelectorAll('nav a');
     const visualizationContainer = document.getElementById('visualization');
-    let astarVisualization = null;
-    
+
     algorithmLinks.forEach(link => {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -11,17 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
             visualizationContainer.innerHTML = '';
 
             if (algorithm === 'astar') {
-                if (!astarVisualization) {
-                    astarVisualization = new AStarVisualization(visualizationContainer);
-                    await astarVisualization.initialize();
-                } else {
-                    const container = document.createElement('div');
-                    container.className = 'visualization-container';
-                    container.appendChild(astarVisualization.canvas);
-                    container.appendChild(astarVisualization.toolbar);
-                    visualizationContainer.appendChild(container);
-                    astarVisualization.draw();
-                }
+                let astarVisualization = new AStarVisualization(visualizationContainer);
+                await astarVisualization.initialize();
+            } else if (algorithm === 'kmeans') {
+                let kmeansVisualization = new KMeans(visualizationContainer);
+                kmeansVisualization.initialize();
+            } else if (algorithm === 'neural') {
+                let neuralVisualization = new NeuralVisualization(visualizationContainer);
+                await neuralVisualization.initialize();
+            } else if (algorithm === 'genetic') {
+                let geneticVisualization = new Genetic(visualizationContainer);
+                geneticVisualization.initialize();
             } else if (algorithm === 'ant') {
                 let antsVisualization = new AntsColony(visualizationContainer);
                 await antsVisualization.initialize();

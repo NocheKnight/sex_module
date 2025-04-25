@@ -1,0 +1,190 @@
+.neural-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.drawing-section, .result-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--background-color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.drawing-section {
+    flex: 2;
+    min-width: 300px;
+}
+
+.result-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+h3 {
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.drawing-canvas {
+    width: 280px;
+    height: 280px;
+    background-color: #000000;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+    cursor: crosshair;
+    margin-bottom: 15px;
+}
+
+.control-panel {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+.neural-button {
+    padding: 8px 15px;
+    background-color: var(--background-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 130px;
+}
+
+.neural-button:hover {
+    background-color: rgba(0, 255, 157, 0.1);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 255, 157, 0.2);
+}
+
+.recognize-button {
+    background-color: rgba(0, 255, 157, 0.15);
+    border-color: var(--accent-color);
+}
+
+.recognize-button:hover {
+    background-color: rgba(0, 255, 157, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 255, 157, 0.3);
+}
+
+.result-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.result-canvas {
+    width: 140px;
+    height: 140px;
+    background-color: #000000;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
+.recognition-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.digit-display {
+    font-size: 64px;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
+    margin-top: 10px;
+}
+
+.confidence-display {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .neural-container {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .drawing-section, .result-section {
+        min-width: 0;
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .drawing-canvas {
+        width: 100%;
+        max-width: 280px;
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+    
+    .result-canvas {
+        width: 112px;
+        height: 112px;
+    }
+    
+    .digit-display {
+        font-size: 48px;
+    }
+}
+
+@media (max-width: 480px) {
+    .neural-container {
+        padding: 10px;
+        gap: 10px;
+    }
+    
+    .drawing-section, .result-section {
+        padding: 8px;
+    }
+    
+    h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .drawing-canvas {
+        max-width: 240px;
+    }
+    
+    .result-canvas {
+        width: 84px;
+        height: 84px;
+    }
+    
+    .digit-display {
+        font-size: 40px;
+    }
+    
+    .neural-button {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+} 
