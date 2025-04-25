@@ -10,9 +10,23 @@ class AStarVisualization {
         this.path = null;
         this.visited = new Set();
         this.frontier = new Set();
+        this.visitedOrder = []; // Порядок посещения клеток
+        this.frontierOrder = []; // Порядок добавления в границу
+        this.pathOrder = []; // Порядок построения пути
         this.isDrawing = false;
         this.isEditing = false;
         this.currentTool = 'wall'; // wall, start, end, erase
+        this.animationSpeed = 20; // мс между кадрами
+        this.mazeSize = {
+            rows: 20,
+            cols: 20
+        };
+        this.animationState = {
+            running: false,
+            visitedIndex: 0,
+            frontierIndex: 0,
+            pathIndex: 0
+        };
     }
     
     async initialize() {
@@ -26,8 +40,9 @@ class AStarVisualization {
         
         this.createToolbar();
         
+        visualizationContainer.appendChild(this.toolbar1);
         visualizationContainer.appendChild(this.canvas);
-        visualizationContainer.appendChild(this.toolbar);
+        visualizationContainer.appendChild(this.toolbar2);
 
         
         await this.generateMaze();
@@ -41,11 +56,17 @@ class AStarVisualization {
     }
     
     createToolbar() {
-        this.toolbar = document.createElement('div');
-        this.toolbar.className = 'astar-toolbar';
+        this.toolbar1 = document.createElement('div');
+        this.toolbar1.className = 'astar-toolbar';
         
+        // Выбор алгоритма генерации
         const algorithmSelector = document.createElement('div');
         algorithmSelector.className = 'algorithm-selector';
+        
+        const algorithmLabel = document.createElement('label');
+        algorithmLabel.textContent = 'Алгоритм:';
+        algorithmLabel.className = 'selector-label';
+        algorithmSelector.appendChild(algorithmLabel);
         
         const select = document.createElement('select');
         select.innerHTML = `
@@ -58,11 +79,77 @@ class AStarVisualization {
         });
         
         algorithmSelector.appendChild(select);
-        this.toolbar.appendChild(algorithmSelector);
+        this.toolbar1.appendChild(algorithmSelector);
+
+        const divider5 = document.createElement('div');
+        divider5.className = 'toolbar-divider';
+        this.toolbar1.appendChild(divider5);
+
+
+        // Слайдер размера
+        const sizeControl = document.createElement('div');
+        sizeControl.className = 'speed-control';
+
+        const sizeLabel = document.createElement('div');
+        sizeLabel.className = 'size-label';
+        sizeLabel.innerHTML = '<label>Размер: 20x20</label>';
+
+        const sizeSlider = document.createElement('input');
+        sizeSlider.type = 'range';
+        sizeSlider.min = '5';
+        sizeSlider.max = '25';
+        sizeSlider.value = '20';
+        sizeSlider.addEventListener('input', (e) => {
+            sizeLabel.textContent = `Размер: ${sizeSlider.value}x${sizeSlider.value}`;
+
+            let value = parseInt(e.target.value);
+            if (isNaN(value)) {
+                value = 20;
+            } else {
+                value = Math.max(5, Math.min(25, value));
+            }
+            this.mazeSize.rows = value;
+            this.mazeSize.cols = value;
+        });
+
+        sizeControl.appendChild(sizeLabel);
+        sizeControl.appendChild(sizeSlider);
+
         
-        const divider = document.createElement('div');
-        divider.className = 'toolbar-divider';
-        this.toolbar.appendChild(divider);
+        const applyButton = document.createElement('button');
+        applyButton.className = 'astar-tool-button apply-button';
+        applyButton.innerHTML = 'Применить';
+        applyButton.addEventListener('click', () => {
+            const currentAlgorithm = select.value;
+            this.generateMaze(currentAlgorithm);
+        });
+        
+        sizeControl.appendChild(applyButton);
+        this.toolbar1.appendChild(sizeControl);
+
+        const divider2 = document.createElement('div');
+        divider2.className = 'toolbar-divider';
+        this.toolbar1.appendChild(divider2);
+
+        // Слайдер скорости
+        const speedControl = document.createElement('div');
+        speedControl.className = 'speed-control';
+        speedControl.innerHTML = '<label>Скорость:</label>';
+
+        const speedSlider = document.createElement('input');
+        speedSlider.type = 'range';
+        speedSlider.min = '1';
+        speedSlider.max = '100';
+        speedSlider.value = '20';
+        speedSlider.addEventListener('input', (e) => {
+            this.animationSpeed = 101 - parseInt(e.target.value);
+        });
+
+        speedControl.appendChild(speedSlider);
+        this.toolbar1.appendChild(speedControl);
+
+        this.toolbar2 = document.createElement('div');
+        this.toolbar2.className = 'astar-toolbar';
         
         const editTools = [
             { id: 'start', icon: '🚀', label: 'Старт' },
@@ -77,12 +164,12 @@ class AStarVisualization {
             button.innerHTML = `${tool.icon} ${tool.label}`;
             button.dataset.tool = tool.id;
             button.addEventListener('click', () => this.handleToolClick(tool.id));
-            this.toolbar.appendChild(button);
+            this.toolbar2.appendChild(button);
         });
         
-        const divider2 = document.createElement('div');
-        divider2.className = 'toolbar-divider';
-        this.toolbar.appendChild(divider2);
+        const divider3 = document.createElement('div');
+        divider3.className = 'toolbar-divider';
+        this.toolbar2.appendChild(divider3);
         
         const actionTools = [
             { id: 'generate', icon: '🔄', label: 'Новый лабиринт' },
@@ -95,30 +182,49 @@ class AStarVisualization {
             button.innerHTML = `${tool.icon} ${tool.label}`;
             button.dataset.tool = tool.id;
             button.addEventListener('click', () => this.handleToolClick(tool.id));
-            this.toolbar.appendChild(button);
+            this.toolbar2.appendChild(button);
         });
     }
     
     async generateMaze(algorithm = 'prim') {
         try {
-            const response = await fetch(`http://localhost:8000/astar/generate?algorithm=${algorithm}`);
+            // Останавливаем анимацию если она запущена
+            this.stopAnimation();
+            
+            const response = await fetch(`http://localhost:8000/astar/generate?algorithm=${algorithm}&rows=${this.mazeSize.rows}&cols=${this.mazeSize.cols}`);
             const data = await response.json();
             this.maze = data.maze;
             this.start = data.start;
             this.end = data.end;
-            this.path = null;
-            this.visited = new Set();
-            this.frontier = new Set();
+            this.resetPathData();
             this.resizeCanvas();
             this.draw();
         } catch (error) {
             console.error('Ошибка при генерации лабиринта:', error);
+            alert('Ошибка при генерации лабиринта. Проверьте консоль для деталей.');
         }
     }
     
+    resetPathData() {
+        this.path = null;
+        this.visited = new Set();
+        this.frontier = new Set();
+        this.visitedOrder = [];
+        this.frontierOrder = [];
+        this.pathOrder = [];
+        this.animationState = {
+            running: false,
+            visitedIndex: 0,
+            frontierIndex: 0,
+            pathIndex: 0
+        };
+    }
+    
     resizeCanvas() {
+        if (!this.maze || !this.canvas) return;
+        
         const container = this.canvas.parentElement;
-        const containerWidth = container.clientWidth - this.toolbar.offsetWidth - 16; // 16px для gap
+        const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
         
         // Вычисляем размер клетки, чтобы лабиринт помещался в контейнер
@@ -139,6 +245,9 @@ class AStarVisualization {
     }
     
     handleMouseDown(e) {
+        // Останавливаем анимацию при редактировании
+        this.stopAnimation();
+        
         this.isDrawing = true;
         this.handleMouseMove(e);
     }
@@ -164,12 +273,12 @@ class AStarVisualization {
     
     async handleToolClick(tool) {
         // Убираем выделение со всех кнопок
-        this.toolbar.querySelectorAll('.astar-tool-button').forEach(button => {
+        this.toolbar1.querySelectorAll('.astar-tool-button').forEach(button => {
             button.classList.remove('active');
         });
         
         // активная кнопка
-        const activeButton = this.toolbar.querySelector(`[data-tool="${tool}"]`);
+        const activeButton = this.toolbar1.querySelector(`[data-tool="${tool}"]`);
         if (activeButton) {
             activeButton.classList.add('active');
         }
@@ -183,7 +292,6 @@ class AStarVisualization {
                 break;
             case 'generate':
                 await this.generateMaze();
-                this.draw();
                 break;
             case 'start_search':
                 await this.startPathfinding();
@@ -194,17 +302,31 @@ class AStarVisualization {
     updateCell(x, y) {
         if (this.currentTool === 'wall') {
             this.maze[y][x] = 1;
+            this.resetPathData();
         } else if (this.currentTool === 'erase') {
             this.maze[y][x] = 0;
+            this.resetPathData();
         } else if (this.currentTool === 'start') {
-            this.start = [x, y];
+            // Проверяем что клетка не стена
+            if (this.maze[y][x] === 0) {
+                this.start = [x, y];
+                this.resetPathData();
+            }
         } else if (this.currentTool === 'end') {
-            this.end = [x, y];
+            // Проверяем что клетка не стена
+            if (this.maze[y][x] === 0) {
+                this.end = [x, y];
+                this.resetPathData();
+            }
         }
         this.draw();
     }
     
     async startPathfinding() {
+        // Останавливаем предыдущую анимацию
+        this.stopAnimation();
+        this.resetPathData();
+        
         try {
             const response = await fetch('http://localhost:8000/astar/find-path', {
                 method: 'POST',
@@ -219,29 +341,77 @@ class AStarVisualization {
             });
             
             const data = await response.json();
-            this.path = data.path;
-            this.visited = new Set(data.visited);
-            this.frontier = new Set(data.frontier);
             
+            // Сохраняем данные для анимации
+            this.pathOrder = data.path || [];
+            this.visitedOrder = data.visited || [];
+            this.frontierOrder = data.frontier || [];
+            
+            // Запускаем анимацию
             this.animatePathfinding();
+            
         } catch (error) {
             console.error('Ошибка при поиске пути:', error);
+            alert('Ошибка при поиске пути. Проверьте консоль для деталей.');
         }
     }
     
+    stopAnimation() {
+        this.animationState.running = false;
+    }
+    
     animatePathfinding() {
-        let step = 0;
+        this.animationState = {
+            running: true,
+            visitedIndex: 0,
+            frontierIndex: 0,
+            pathIndex: 0
+        };
+        
         const animate = () => {
-            this.draw(step);
-            step++;
-            if (step < this.path.length) {
-                requestAnimationFrame(animate);
+            if (!this.animationState.running) return;
+            
+            let updated = false;
+            
+            // Добавляем посещенные клетки
+            if (this.animationState.visitedIndex < this.visitedOrder.length) {
+                const [x, y] = this.visitedOrder[this.animationState.visitedIndex];
+                this.visited.add(`${x},${y}`);
+                this.animationState.visitedIndex++;
+                updated = true;
+            }
+            
+            // Добавляем клетки границы
+            if (this.animationState.frontierIndex < this.frontierOrder.length) {
+                const [x, y] = this.frontierOrder[this.animationState.frontierIndex];
+                this.frontier.add(`${x},${y}`);
+                this.animationState.frontierIndex++;
+                updated = true;
+            }
+            
+            // Рисуем путь
+            if (this.animationState.pathIndex < this.pathOrder.length && 
+                this.animationState.visitedIndex >= this.visitedOrder.length &&
+                this.animationState.frontierIndex >= this.frontierOrder.length) {
+                this.path = this.pathOrder.slice(0, this.animationState.pathIndex + 1);
+                this.animationState.pathIndex++;
+                updated = true;
+            }
+            
+            if (updated) {
+                this.draw();
+                setTimeout(() => requestAnimationFrame(animate), this.animationSpeed);
+            } else {
+                this.animationState.running = false;
             }
         };
+        
         animate();
     }
     
-    draw(currentStep = null) {
+    draw() {
+        if (!this.ctx || !this.maze) return;
+        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Отрисовка лабиринта
@@ -258,20 +428,22 @@ class AStarVisualization {
         }
         
         // Отрисовка посещенных клеток
-        this.visited.forEach(([x, y]) => {
+        this.visited.forEach(coord => {
+            const [x, y] = coord.split(',').map(Number);
             this.ctx.fillStyle = 'rgba(0,255,157,0.18)';
             this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
         });
         
         // Отрисовка границы поиска
-        this.frontier.forEach(([x, y]) => {
+        this.frontier.forEach(coord => {
+            const [x, y] = coord.split(',').map(Number);
             this.ctx.fillStyle = 'rgba(65,94,85,0.29)';
             this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
         });
         
         // Отрисовка пути
-        if (this.path && currentStep !== null) {
-            for (let i = 0; i <= currentStep; i++) {
+        if (this.path) {
+            for (let i = 0; i < this.path.length; i++) {
                 const [x, y] = this.path[i];
                 this.ctx.fillStyle = '#00ff9d';
                 this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
@@ -285,7 +457,7 @@ class AStarVisualization {
             this.ctx.arc(
                 this.start[0] * this.cellSize + this.cellSize/2,
                 this.start[1] * this.cellSize + this.cellSize/2,
-                this.cellSize/2,
+                this.cellSize/2 - 2,
                 0,
                 Math.PI * 2
             );
@@ -298,7 +470,7 @@ class AStarVisualization {
             this.ctx.arc(
                 this.end[0] * this.cellSize + this.cellSize/2,
                 this.end[1] * this.cellSize + this.cellSize/2,
-                this.cellSize/2,
+                this.cellSize/2 - 2,
                 0,
                 Math.PI * 2
             );
