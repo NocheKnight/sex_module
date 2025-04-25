@@ -18,7 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (algorithm === 'neural') {
                 let neuralVisualization = new NeuralVisualization(visualizationContainer);
                 await neuralVisualization.initialize();
-            } else {
+            } else if (algorithm === 'genetic') {
+                let geneticVisualization = new Genetic(visualizationContainer);
+                geneticVisualization.initialize();
+            } 
+            else {
                 // Обработка других алгоритмов
                 try {
                     const response = await fetch(`http://localhost:8000/${algorithm}`);

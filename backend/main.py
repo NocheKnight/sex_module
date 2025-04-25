@@ -5,11 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.algorithms.kmeans import KMeansData, kmeans_algorithm
 from backend.algorithms.astar import AStar
 from backend.algorithms.ai.neural_network import NeuralNetwork
+from backend.algorithms.genetic_algorithm import get_exact_solution, GeneticAlgorithm
 import pandas as pd
 import numpy as np
 import uvicorn
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 import random
 
 app = FastAPI(title="Web Application")
@@ -114,10 +115,16 @@ async def run_kmeans(data: KMeansData):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/genetic/")
-async def run_genetic_algorithm():
-    # result = genetic_algorithm()
-    return {"result": "result"}
+@app.post("/tsp/genetic")
+async def tsp_genetic(points: List[Tuple[float, float]]):
+    genetic = GeneticAlgorithm(points)
+    return genetic.run()
+
+
+@app.post("/tsp/exact")
+async def tsp_exact(points: List[Tuple[float, float]]):
+    return get_exact_solution(points)
+
 
 
 @app.get("/ant")
