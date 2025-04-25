@@ -2,28 +2,28 @@ class AntsColony {
     constructor(container) {
         this.container = container;
         this.canvas = null;
-        this.canvas_size = 1000;
+        this.canvas_size = 500;
         this.ctx = null;
 
         this.ants = [];
         this.ant_color = [0, 0, 0];
-        this.ant_size = 5;
+        this.ant_size = this.canvas_size / 200;
 
         this.home = [this.canvas_size / 2, this.canvas_size / 2];
         this.home_color = [102, 51, 0];
-        this.home_size = 50;
+        this.home_size = this.canvas_size / 20;
 
         // (x, y, source_capacity)
         this.food_sources = [[this.canvas_size / 7, this.canvas_size / 7, 1], [this.canvas_size * 6 / 7, this.canvas_size / 7, 1], [this.canvas_size / 2, this.canvas_size * 6 / 7, 1]];
         this.food_color = [0, 255, 0];
-        this.food_size = 50;
+        this.food_size = this.canvas_size / 20;
 
         this.pheromones = [];
         this.home_to_food_color = [0, 0, 255];
         this.food_to_home_color = [255, 0, 0];
         this.pheromones_size = this.ant_size * 3 / 5;
 
-        this.colony_size = 50;
+        this.colony_size = 40;
 
         this.running = false;
     }
@@ -79,15 +79,11 @@ class AntsColony {
         }
         
         switch (tool) {
-            case 'wall':
-            case 'end':
-            case 'erase':
-                this.currentTool = tool;
-                break;
             case 'stop':
                 this.running = false;
                 this.ants = [];
                 this.pheromones = [];
+                this.draw();
                 break;
             case 'start':
                 this.running = true;
