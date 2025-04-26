@@ -5,7 +5,6 @@ from .ai import AI
 
 class NeuralNetwork:
     def __init__(self):
-        """Инициализация нейронной сети для распознавания цифр MNIST."""
         self.ai = AI()
         
         config_path = os.path.join(os.path.dirname(__file__), 'AI_config.npz')
@@ -17,20 +16,6 @@ class NeuralNetwork:
             print(f"Ошибка загрузки нейронной сети: {e}")
             print("Используется нейронная сеть без предварительного обучения")
     
-    def normalize(self, image):
-        """
-        Нормализует изображение для нейронной сети.
-        
-        Args:
-            image: numpy array размером 28x28
-            
-        Returns:
-            numpy array: нормализованное изображение
-        """
-        if image.max() > 1.0:
-            image = image / 255.0
-        return image
-
     def predict(self, image):
         """
         Распознает цифру на изображении.
@@ -49,9 +34,12 @@ class NeuralNetwork:
             if image.max() > 1.0:
                 image = image / 255.0
                 
-            digit = self.ai.main(image)
+            probabilities = self.ai.main(image)
+
+            digit = int(np.argmax(probabilities))
+            confidence = float(probabilities[digit])
             
-            return digit.argmax(), digit[digit.argmax()]
+            return digit, confidence
             
         except Exception as e:
             print(f"Ошибка при распознавании: {e}")

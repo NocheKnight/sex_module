@@ -5,13 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     algorithmLinks.forEach(link => {
         link.addEventListener('click', async (e) => {
             e.preventDefault();
-            const algorithm = e.target.dataset.algorithm;
+            const algorithm = e.target.dataset.algorithm || e.target.parentElement.dataset.algorithm;
             
             visualizationContainer.innerHTML = '';
 
             if (algorithm === 'astar') {
                 let astarVisualization = new AStarVisualization(visualizationContainer);
                 await astarVisualization.initialize();
+            } else if (algorithm === 'decision-tree') {
+                let decisionTreeVisualization = new DecisionTreeVisualization(visualizationContainer);
+                await decisionTreeVisualization.initialize();
             } else if (algorithm === 'kmeans') {
                 let kmeansVisualization = new KMeans(visualizationContainer);
                 kmeansVisualization.initialize();

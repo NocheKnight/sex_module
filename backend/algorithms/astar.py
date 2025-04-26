@@ -22,7 +22,6 @@ class AStar:
         else:
             self._generate_kruskal_maze(rows, cols)
         
-        # Устанавливаем начальную и конечную точки
         # Проверяем, что точки находятся в границах и не являются стенами
         while True:
             self.start = [random.randint(0, cols-1), random.randint(0, rows-1)]
@@ -60,7 +59,6 @@ class AStar:
         if start_y < rows-1:
             walls.append((start_x, start_y+1))
         
-        # Алгоритм Прима
         while walls:
             # Выбираем случайную стену
             wall_index = random.randint(0, len(walls)-1)
