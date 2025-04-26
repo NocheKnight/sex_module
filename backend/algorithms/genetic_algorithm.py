@@ -2,29 +2,36 @@ from typing import Tuple, List
 import numpy as np
 from numpy import random
 import random
+from pydantic import BaseModel
 
 
 def dist(point1: Tuple[float, float], point2: Tuple[float, float]):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
 
+class GeneticsDto(BaseModel):
+    points: List[Tuple[float, float]]
+    prev_generation: List[List[int]]
+
 
 class GeneticAlgorithm:
     mutation_rate = 0.02
     generation_size = 200
-    iteration_count = 100
+    # iteration_count = 100
     tournament_size = 10
 
     generation = []
     points = []
 
-    def __init__(self, points):
+    def __init__(self, points, generation):
         self.points = points
-        self.generation = []
-        path = [i for i in range(len(points))]
+        self.generation = generation
 
-        for _ in range(self.generation_size):
-            random.shuffle(path)
-            self.generation.append(path)
+        if len(self.generation) == 0:
+            path = [i for i in range(len(points))]
+
+            for _ in range(self.generation_size):
+                random.shuffle(path)
+                self.generation.append(path)
     
     def fitness(self, chromosome):
         suma = 0
@@ -58,29 +65,29 @@ class GeneticAlgorithm:
         return child
 
     def run(self):
-        for _ in range(self.iteration_count):
-            next_generation = []
+        # for _ in range(self.iteration_count):
+        next_generation = []
 
-            for _ in range(self.generation_size // 2):
-                parent1 = self.select_parent()
-                parent2 = self.select_parent()
+        for _ in range(self.generation_size // 2):
+            parent1 = self.select_parent()
+            parent2 = self.select_parent()
 
-                child1 = self.crossover(parent1, parent2)
-                child2 = self.crossover(parent2, parent1)
-                
-
-                if random.random() < self.mutation_rate:
-                    child1 = self.mutate(child1)
-                if random.random() < self.mutation_rate:
-                    child2 = self.mutate(child2)
-                
-                next_generation.append(child1)
-                next_generation.append(child2)
+            child1 = self.crossover(parent1, parent2)
+            child2 = self.crossover(parent2, parent1)
             
-            self.generation = next_generation
+
+            if random.random() < self.mutation_rate:
+                child1 = self.mutate(child1)
+            if random.random() < self.mutation_rate:
+                child2 = self.mutate(child2)
+            
+            next_generation.append(child1)
+            next_generation.append(child2)
+        
+        self.generation = next_generation
         
         answer = min(self.generation, key=lambda route: self.fitness(route))
-        return [[self.points[i] for i in answer], self.fitness(answer)]
+        return [[self.points[i] for i in answer], self.fitness(answer), self.generation]
 
 
 def get_exact_solution(points: List[Tuple[float, float]]):

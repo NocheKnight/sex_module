@@ -8,6 +8,8 @@ class Genetic {
         this.points = new Set();
         this.pointR = 10;
         this.defaultPointColor = [0, 0, 0];
+        this.iterationCnt = 200;
+        this.generation = [[]];
     }
 
     initialize() {
@@ -167,10 +169,31 @@ class Genetic {
         try {
             let arrayPoints = [...this.points].map(point => [point[0], point[1]]);
 
-            this.draw(true);
+            for (let i = 0; i < this.iterationCnt; ++i) {
+                const response = await fetch('http://localhost:8000/tsp/genetic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        points: arrayPoints,
+                        prev_generation: this.generation
+                    })
+                });
+                
+                let data = await response.json();
+                this.generation = data[2];
 
-            let request = async (subpath, color) => {
-                const response = await fetch('http://localhost:8000/tsp/' + subpath, {
+                if (i % 10 == 0) {
+                    this.draw(true);
+                    this.draw_path(data[0], 'red');
+                    console.log(data[1]);
+                    // await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+
+            if (arrayPoints.length <= 15) {
+                const response = await fetch('http://localhost:8000/tsp/exact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -180,15 +203,9 @@ class Genetic {
                 
                 let data = await response.json();
 
-                this.draw_path(data[0], color);
+                this.draw_path(data[0], 'green');
                 console.log(data[1]);
-            };
-
-            if (arrayPoints.length <= 15) {
-                await request('exact', 'green');
             }
-
-            await request('genetic', 'red');
                         
         } catch (error) {
             console.error(error);

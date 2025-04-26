@@ -7,7 +7,7 @@ from backend.algorithms.astar import AStar
 from backend.algorithms.decision_tree import DecisionTree
 # from algorithms.kmeans import kmeans_clustering
 from backend.algorithms.kmeans import KMeansData, kmeans_algorithm
-from backend.algorithms.genetic_algorithm import get_exact_solution, GeneticAlgorithm
+from backend.algorithms.genetic_algorithm import get_exact_solution, GeneticAlgorithm, GeneticsDto
 from backend.algorithms.ant_colony import AntColony, AntColonyDto
 import pandas as pd
 import numpy as np
@@ -202,8 +202,8 @@ async def predict_decision_tree(file: UploadFile = File(...),
 
 
 @app.post("/tsp/genetic")
-async def tsp_genetic(points: List[Tuple[float, float]]):
-    genetic = GeneticAlgorithm(points)
+async def tsp_genetic(data: GeneticsDto):
+    genetic = GeneticAlgorithm(data.points, [])
     return genetic.run()
 
 
