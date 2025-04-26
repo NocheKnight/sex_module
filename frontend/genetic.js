@@ -9,7 +9,7 @@ class Genetic {
         this.pointR = 10;
         this.defaultPointColor = [0, 0, 0];
         this.iterationCnt = 200;
-        this.generation = [[]];
+        this.generation = [];
     }
 
     initialize() {

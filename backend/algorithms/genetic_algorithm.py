@@ -3,6 +3,7 @@ import numpy as np
 from numpy import random
 import random
 from pydantic import BaseModel
+from math import floor
 
 
 def dist(point1: Tuple[float, float], point2: Tuple[float, float]):
@@ -18,6 +19,7 @@ class GeneticAlgorithm:
     generation_size = 200
     # iteration_count = 100
     tournament_size = 10
+    elite_part = 0.2
 
     generation = []
     points = []
@@ -66,9 +68,9 @@ class GeneticAlgorithm:
 
     def run(self):
         # for _ in range(self.iteration_count):
-        next_generation = []
+        next_generation = sorted(self.generation, key=lambda route: self.fitness(route))[:floor(self.elite_part * len(self.generation))]
 
-        for _ in range(self.generation_size // 2):
+        while len(next_generation) < self.generation_size:
             parent1 = self.select_parent()
             parent2 = self.select_parent()
 

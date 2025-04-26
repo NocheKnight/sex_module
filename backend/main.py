@@ -203,7 +203,7 @@ async def predict_decision_tree(file: UploadFile = File(...),
 
 @app.post("/tsp/genetic")
 async def tsp_genetic(data: GeneticsDto):
-    genetic = GeneticAlgorithm(data.points, [])
+    genetic = GeneticAlgorithm(data.points, data.prev_generation)
     return genetic.run()
 
 
