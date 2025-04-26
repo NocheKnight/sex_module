@@ -19,12 +19,12 @@ class AntsColony {
         this.food_color = [0, 255, 0];
         this.food_size = this.canvas_size / 20;
 
+        this.current_food_idx = -1;
+
         this.pheromones = [];
         this.home_to_food_color = [0, 0, 255];
         this.food_to_home_color = [255, 0, 0];
         this.pheromones_size = this.ant_size * 3 / 5;
-
-        this.colony_size = 40;
 
         this.running = false;
     }
@@ -45,6 +45,8 @@ class AntsColony {
         visualizationContainer.appendChild(this.canvas);
         visualizationContainer.append(this.toolbar);
 
+        this.setupEventListeners();
+
         this.draw();
     }
 
@@ -55,7 +57,8 @@ class AntsColony {
         const editTools = [
             { id: 'home', icon: '🚀', label: 'Колония' },
             { id: 'food', icon: '🎯', label: 'Еда' },
-            { id: 'erase', icon: '🧹', label: 'Ластик' }
+            { id: 'erase', icon: '🧹', label: 'Ластик' },
+            { id: 'edit', icon: '🖊️', label: 'Редактировать' }
         ];
         
         editTools.forEach(tool => {
@@ -66,10 +69,34 @@ class AntsColony {
             button.addEventListener('click', () => this.handleToolClick(tool.id));
             this.toolbar.appendChild(button);
         });
+
+        const foodCount = document.createElement('label');
+        foodCount.innerHTML = 'Введите количество еды от 1 до 100';
+        this.toolbar.appendChild(foodCount);
+        const foodCountInputField = document.createElement('input');
+        foodCountInputField.id = 'food-cnt';
+        foodCountInputField.type = 'text';
+        foodCountInputField.className = 'astar-tool-button';
+        this.toolbar.appendChild(foodCountInputField);
+
+        const button = document.createElement('button');
+        button.className = 'astar-tool-button';
+        button.innerHTML = 'Сохранить';
+        button.addEventListener('click', () => this.handleSaveButton());
+        this.toolbar.appendChild(button);
         
         const divider2 = document.createElement('div');
         divider2.className = 'toolbar-divider';
         this.toolbar.appendChild(divider2);
+
+        const antsCntLabel = document.createElement('label');
+        antsCntLabel.innerHTML = 'Введите количество муравьев';
+        this.toolbar.appendChild(antsCntLabel);
+        const antsCntInputField = document.createElement('input');
+        antsCntInputField.id = 'ants-cnt';
+        antsCntInputField.type = 'text';
+        antsCntInputField.className = 'astar-tool-button';
+        this.toolbar.appendChild(antsCntInputField);
 
         const actionTools = [
             { id: 'stop', icon: '🧱', label: 'Остановить' },
@@ -101,6 +128,7 @@ class AntsColony {
         switch (tool) {
             case 'home':
             case 'food':
+            case 'edit':
             case 'erase':
                 this.currentTool = tool;
                 break;
@@ -121,25 +149,49 @@ class AntsColony {
     setupEventListeners() {
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
     }
+
+    intersectCircle(point, circleCenter, radius) {
+        return (point[0] - circleCenter[0]) * (point[0] - circleCenter[0]) +
+         (point[1] - circleCenter[1]) * (point[1] - circleCenter[1]) <= radius * radius;
+    }
     
     handleMouseDown(e) {
         const rect = this.canvas.getBoundingClientRect();
         
-        const x = (e.clientX - rect.left);
-        const y = (e.clientY - rect.top);
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
 
         if (this.currentTool == 'home') {
             this.home = [x, y];
         } else if (this.currentTool == 'food') {
-            this.food_sources.add([x, y, 1]);
+            this.food_sources.push([x, y, 100]);
         } else if (this.currentTool == 'erase') {
-            let food_sources_set = new Set(this.food_sources);
-            let intersections = this.food_sources.filter((source) => ((source[0] - x) * (source[0] - 1) + (source[1] - y) * (source[1] - y) <= this.food_size * this.food_size));
-            intersections.forEach((source) => food_sources_set.remove(source));
-            this.food_sources = [...food_sources_set];
+            let foodSourcesSet = new Set(this.food_sources);
+            let intersections = this.food_sources.filter((source) => this.intersectCircle([x, y], [source[0], source[1]], this.food_size));
+            intersections.forEach((source) => foodSourcesSet.delete(source));
+            this.food_sources = [...foodSourcesSet];
+        } else if (this.currentTool == 'edit') {
+            for (let i = 0; i < this.food_sources.length; ++i) {
+                if (this.intersectCircle([x, y], [this.food_sources[i][0], this.food_sources[i][1]], this.food_size)) {
+                    document.getElementById('food-cnt').value = this.food_sources[i][2];
+                    this.current_food_idx = i;
+                    break;
+                }
+            }
         }
 
         this.draw();
+    }
+
+    handleSaveButton() {
+        let currentFood = +document.getElementById('food-cnt').value;
+        console.log(currentFood);
+        if (this.currentTool == 'edit' && this.current_food_idx != -1 && !isNaN(currentFood)) {
+            this.food_sources[this.current_food_idx][2] = currentFood;
+        }
     }
     
 
@@ -185,7 +237,7 @@ class AntsColony {
             },
             body: JSON.stringify({
                 home: this.home,
-                colony_size: this.colony_size
+                colony_size: +document.getElementById('ants-cnt').value
             })
         });
 
@@ -197,7 +249,7 @@ class AntsColony {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         let get_color = ((t, r_a = 1) => {
-            return `rgba(${t}, ${r_a})`;
+            return `rgba(${t}, ${Math.min(r_a, 1)})`;
         });
 
         this.pheromones.forEach(phe => {
@@ -216,7 +268,7 @@ class AntsColony {
             if (ant.is_holding_food) {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = get_color(this.food_color);
-                this.ctx.arc(ant.position[0], ant.position[1], this.ant_size * 2 / 5, 0, 2 * Math.PI);
+                this.ctx.arc(ant.position[0], ant.position[1], this.ant_size * 1 / 3, 0, 2 * Math.PI);
                 this.ctx.fill();
             }
         });

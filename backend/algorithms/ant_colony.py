@@ -157,7 +157,7 @@ class AntColony:
                     if circle_intersect(ant.position, ant.size, (food_source[0], food_source[1]), self.food_size):
                         ant.is_holding_food = True
                         ant.direction = -ant.direction
-                        ant.current_pheromone_strength = 1
+                        ant.current_pheromone_strength = food_source[2] / 100
                         break
             
             # add pheromones
